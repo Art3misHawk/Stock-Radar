@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Stock Price Fetcher{% endblock %}</title>
+    <title>{% block title %}Stock Radar{% endblock %}</title>
     
     <!-- Preload critical resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,8 +34,8 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
-                <div class="logo">SF</div>
-                Stock Fetcher
+                <div class="logo">SR</div>
+                Stock Radar
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ url_for('setup') }}">
@@ -57,8 +57,7 @@
     <footer class="text-center py-4 mt-5">
         <div class="container">
             <p class="mb-0 text-muted">
-                <i class="fas fa-code me-1"></i>Built with Python Flask, TradingView & Alpha Vantage API
-                <span class="d-none d-md-inline">| Smooth UX with dual themes</span>
+                <i class="fas fa-code me-1"></i>Built with Python Flask, TradingView & Alpha Vantage API | Smooth UX with dual themes
             </p>
         </div>
     </footer>

@@ -105,7 +105,6 @@ body::before {
 /* Navigation */
 .navbar {
     background: rgba(26, 26, 46, 0.95) !important;
-    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: var(--shadow-medium);
     padding: 1rem 0;
@@ -189,8 +188,7 @@ body::before {
 
 /* Cards with Interactive Effects */
 .card {
-    background: rgba(30, 30, 46, 0.8);
-    backdrop-filter: blur(20px);
+    background: rgba(30, 30, 46, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     box-shadow: var(--shadow-medium);
@@ -379,7 +377,6 @@ body::before {
     overflow-y: auto;
     z-index: 1000;
     display: none;
-    backdrop-filter: blur(20px);
 }
 
 .autocomplete-item {
@@ -665,9 +662,9 @@ body::before {
 .toast {
     border-radius: 15px;
     box-shadow: var(--shadow-strong);
-    backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     animation: slideInRight 0.3s ease-out;
+    background: var(--bg-card);
 }
 
 @keyframes slideInRight {
@@ -712,9 +709,8 @@ body::before {
 
 /* Glassmorphism Effects */
 .glass-effect {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 20px;
 }
 
