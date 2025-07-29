@@ -8,7 +8,7 @@ Instructions:
 """
 
 # Replace this with your actual Alpha Vantage API key
-ALPHA_VANTAGE_API_KEY = "YOUR_API_KEY_HERE"
+ALPHA_VANTAGE_API_KEY = "XSC0GGLQNPOUAS94"
 
 # API Configuration
 BASE_URL = "https://www.alphavantage.co/query"
