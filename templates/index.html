@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Price Fetcher - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-chart-line text-primary"></i>
+                Stock Price Fetcher
+            </h1>
+            <p class="lead text-muted">
+                Get real-time stock quotes, search symbols, and view historical data
+            </p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-dollar-sign fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Real-time Quotes</h5>
+                        <p class="card-text">Get current stock prices, changes, and trading volume</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-search fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Symbol Search</h5>
+                        <p class="card-text">Find stock symbols by company name or keywords</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Historical Data</h5>
+                        <p class="card-text">View past trading data and price trends</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{{ url_for('setup') }}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-rocket me-2"></i>Get Started
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-dashboard me-2"></i>Dashboard
+            </a>
+        </div>
+
+        <div class="alert alert-info mt-5" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Free API Key Required:</strong> 
+            You'll need a free Alpha Vantage API key to get started. 
+            <a href="https://www.alphavantage.co/support/#api-key" target="_blank" class="alert-link">
+                Get yours here <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

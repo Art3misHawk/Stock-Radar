@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Stock Price Fetcher{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">
+            <i class="fas fa-chart-line me-2"></i>Advanced Stock Dashboard
+        </h2>
+    </div>
+</div>
+
+<!-- Quick Actions Row -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Quick Stock Search
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <div class="search-container">
+                            <input type="text" class="form-control" id="symbolInput" 
+                                   placeholder="Start typing a company name or symbol..." 
+                                   autocomplete="off">
+                            <div class="autocomplete-dropdown"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button onclick="getQuote()" class="btn btn-primary w-100">
+                            <i class="fas fa-chart-line me-2"></i>Get Quote
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-balance-scale me-2"></i>Comparison
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <p class="small mb-2">Compare up to 4 stocks</p>
+                <button onclick="stockComparison.clear()" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-trash me-1"></i>Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TradingView Chart Row -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-area me-2"></i>Interactive Chart
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="tradingview-widget-container" style="height: 500px;">
+                    <div id="tradingview_chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Quote Display -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-dollar-sign me-2"></i>Stock Quote
+                </h5>
+                <button onclick="toggleAutoRefresh()" class="btn btn-sm btn-outline-primary" id="autoRefreshBtn">
+                    <i class="fas fa-sync me-1"></i>Auto Refresh: Off
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="quoteResults">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
+                        <p>Enter a stock symbol above to view real-time data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Comparison Display -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-balance-scale me-2"></i>Stock Comparison
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="comparisonContainer">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-balance-scale fa-3x mb-3 opacity-50"></i>
+                        <p>Search for stocks above to add them to comparison</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Historical Data Section -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>Historical Data
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="historicalInput" 
+                               placeholder="Enter stock symbol for historical data">
+                    </div>
+                    <div class="col-md-6">
+                        <button onclick="getHistoricalData()" class="btn btn-warning w-100">
+                            <i class="fas fa-history me-2"></i>Get Historical Data
+                        </button>
+                    </div>
+                </div>
+                <div id="historicalResults"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Global variables for dashboard functionality
+let autoRefreshInterval = null;
+let currentSymbol = null;
+let tradingViewWidget = null;
+
+// Initialize TradingView chart
+function initTradingViewChart(symbol = 'AAPL') {
+    if (tradingViewWidget) {
+        tradingViewWidget.remove();
+    }
+    
+    tradingViewWidget = new TradingView.widget({
+        "autosize": true,
+        "symbol": `NASDAQ:${symbol}`,
+        "interval": "D",
+        "timezone": "Etc/UTC",
+        "theme": document.body.classList.contains('theme-neumorphism') ? "light" : "light",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#f1f3f6",
+        "enable_publishing": false,
+        "allow_symbol_change": true,
+        "container_id": "tradingview_chart",
+        "studies": [
+            "Volume@tv-basicstudies",
+            "MACD@tv-basicstudies"
+        ],
+        "show_popup_button": true,
+        "popup_width": "1000",
+        "popup_height": "650"
+    });
+}
+
+// Enhanced quote fetching with smooth animations
+async function getQuote(symbol = null) {
+    const symbolValue = symbol || document.getElementById('symbolInput').value.trim().toUpperCase();
+    if (!symbolValue) {
+        showToast('Please enter a stock symbol', 'warning');
+        return;
+    }
+
+    currentSymbol = symbolValue;
+    const resultsDiv = document.getElementById('quoteResults');
+    const btn = event?.target;
+
+    // Show loading state
+    LoadingManager.show(resultsDiv, 'skeleton');
+    if (btn) setButtonLoading(btn, true);
+
+    try {
+        const response = await fetch(`/api/quote/${symbolValue}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            displayQuoteData(data);
+            
+            // Add to comparison
+            stockComparison.addStock(symbolValue, data);
+            
+            // Update TradingView chart
+            updateTradingViewChart(symbolValue);
+            
+            showToast(`Quote for ${symbolValue} updated`, 'success');
+        } else {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || 'Failed to fetch quote'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Quote fetch error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Network error. Please check your connection.
+            </div>
+        `;
+    } finally {
+        if (btn) setButtonLoading(btn, false);
+    }
+}
+
+// Display quote data with enhanced styling
+function displayQuoteData(data) {
+    const resultsDiv = document.getElementById('quoteResults');
+    const changeClass = data.change >= 0 ? 'price-up' : 'price-down';
+    const changeSign = data.change >= 0 ? '+' : '';
+    const changeIcon = data.change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
+    resultsDiv.innerHTML = `
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h3 class="mb-1">${data.symbol}</h3>
+                        <h2 class="mb-2 fw-bold">${formatCurrency(data.price)}</h2>
+                        <p class="mb-0 ${changeClass}">
+                            <i class="fas ${changeIcon} me-1"></i>
+                            <strong>${changeSign}${data.change.toFixed(2)} (${data.change_percent})</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="text-center p-2 rounded" style="background: var(--bg-secondary);">
+                                    <small class="text-muted d-block">Open</small>
+                                    <strong>${formatCurrency(data.open)}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-2 rounded" style="background: var(--bg-secondary);">
+                                    <small class="text-muted d-block">High</small>
+                                    <strong class="text-success">${formatCurrency(data.high)}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-2 rounded" style="background: var(--bg-secondary);">
+                                    <small class="text-muted d-block">Low</small>
+                                    <strong class="text-danger">${formatCurrency(data.low)}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-center p-2 rounded" style="background: var(--bg-secondary);">
+                                    <small class="text-muted d-block">Volume</small>
+                                    <strong>${formatNumber(data.volume)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                Trading Day: ${data.latest_trading_day}
+                            </small>
+                            <small class="text-muted">
+                                Previous Close: ${formatCurrency(data.previous_close)}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add animation
+    resultsDiv.classList.add('fade-in');
+}
+
+// Update TradingView chart
+function updateTradingViewChart(symbol) {
+    if (tradingViewWidget && tradingViewWidget.chart) {
+        tradingViewWidget.chart().setSymbol(`NASDAQ:${symbol}`);
+    } else {
+        initTradingViewChart(symbol);
+    }
+}
+
+// Enhanced historical data with better formatting
+async function getHistoricalData() {
+    const symbol = document.getElementById('historicalInput').value.trim().toUpperCase();
+    if (!symbol) {
+        showToast('Please enter a stock symbol', 'warning');
+        return;
+    }
+
+    const resultsDiv = document.getElementById('historicalResults');
+    const btn = event.target;
+
+    LoadingManager.show(resultsDiv, 'skeleton');
+    setButtonLoading(btn, true);
+
+    try {
+        const response = await fetch(`/api/historical/${symbol}`);
+        const data = await response.json();
+
+        if (response.ok && data['Time Series (Daily)']) {
+            const timeSeries = data['Time Series (Daily)'];
+            const dates = Object.keys(timeSeries).sort().reverse().slice(0, 15);
+
+            let html = `
+                <h6 class="mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Last 15 Trading Days for ${symbol}
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Open</th>
+                                <th>High</th>
+                                <th>Low</th>
+                                <th>Close</th>
+                                <th>Volume</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            dates.forEach((date, index) => {
+                const dayData = timeSeries[date];
+                const open = parseFloat(dayData['1. open']);
+                const close = parseFloat(dayData['4. close']);
+                const change = close - open;
+                const changePercent = ((change / open) * 100).toFixed(2);
+                const changeClass = change >= 0 ? 'price-up' : 'price-down';
+
+                html += `
+                    <tr class="fade-in" style="animation-delay: ${index * 0.1}s">
+                        <td><strong>${date}</strong></td>
+                        <td>${formatCurrency(open)}</td>
+                        <td class="text-success">${formatCurrency(parseFloat(dayData['2. high']))}</td>
+                        <td class="text-danger">${formatCurrency(parseFloat(dayData['3. low']))}</td>
+                        <td><strong>${formatCurrency(close)}</strong></td>
+                        <td>${formatNumber(parseInt(dayData['5. volume']))}</td>
+                        <td class="${changeClass}">
+                            ${change >= 0 ? '+' : ''}${change.toFixed(2)}
+                            <br><small>(${changePercent}%)</small>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table></div>';
+            resultsDiv.innerHTML = html;
+        } else {
+            resultsDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${data.error || 'No historical data available for this symbol'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Historical data error:', error);
+        resultsDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error fetching historical data
+            </div>
+        `;
+    } finally {
+        setButtonLoading(btn, false);
+    }
+}
+
+// Auto-refresh functionality
+function toggleAutoRefresh() {
+    const btn = document.getElementById('autoRefreshBtn');
+    
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+        btn.innerHTML = '<i class="fas fa-sync me-1"></i>Auto Refresh: Off';
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-primary');
+        showToast('Auto refresh disabled', 'info');
+    } else {
+        if (!currentSymbol) {
+            showToast('Please fetch a quote first', 'warning');
+            return;
+        }
+        
+        autoRefreshInterval = setInterval(() => {
+            getQuote(currentSymbol);
+        }, 30000); // Refresh every 30 seconds
+        
+        btn.innerHTML = '<i class="fas fa-sync fa-spin me-1"></i>Auto Refresh: On';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-success');
+        showToast('Auto refresh enabled (30s intervals)', 'success');
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+Enter or Cmd+Enter to get quote
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        getQuote();
+    }
+    
+    // Escape to clear comparison
+    if (e.key === 'Escape' && e.shiftKey) {
+        stockComparison.clear();
+        showToast('Comparison cleared', 'info');
+    }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize TradingView chart
+    setTimeout(() => {
+        initTradingViewChart();
+    }, 1000);
+    
+    // Add enter key support for inputs
+    document.getElementById('symbolInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') getQuote();
+    });
+    
+    document.getElementById('historicalInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') getHistoricalData();
+    });
+    
+    // Show welcome message
+    setTimeout(() => {
+        showToast('Dashboard loaded! Use Ctrl+Enter for quick quotes', 'info');
+    }, 2000);
+});
+
+// Clean up intervals when page unloads
+window.addEventListener('beforeunload', function() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+});
+</script>
+{% endblock %}

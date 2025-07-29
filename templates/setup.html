@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Setup - Stock Price Fetcher{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-key me-2"></i>API Key Setup
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="api_key" class="form-label">Alpha Vantage API Key</label>
+                        <input type="text" class="form-control" id="api_key" name="api_key" 
+                               placeholder="Enter your API key here..." required>
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Don't have an API key? 
+                            <a href="https://www.alphavantage.co/support/#api-key" target="_blank">
+                                Get one free here <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save & Continue
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>How to get your API key
+                </h5>
+            </div>
+            <div class="card-body">
+                <ol class="mb-0">
+                    <li>Visit <a href="https://www.alphavantage.co/support/#api-key" target="_blank">Alpha Vantage API</a></li>
+                    <li>Enter your email address</li>
+                    <li>Click "GET FREE API KEY"</li>
+                    <li>Copy the API key and paste it above</li>
+                </ol>
+                
+                <div class="alert alert-warning mt-3 mb-0" role="alert">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Free Tier Limits:</strong> 25 requests per day, 5 requests per minute
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
