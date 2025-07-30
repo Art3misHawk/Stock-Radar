@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-6">
+    <div class="col-lg-8">
         <div class="card shadow">
             <div class="card-header bg-primary text-white">
                 <h4 class="mb-0">
-                    <i class="fas fa-key me-2"></i>API Key Setup
+                    <i class="fas fa-cog me-2"></i>Data Provider Setup
                 </h4>
             </div>
             <div class="card-body">
@@ -19,10 +19,76 @@
                 {% endif %}
 
                 <form method="POST">
-                    <div class="mb-3">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Choose a Data Provider</label>
+                        
+                        <!-- Yahoo Finance Option -->
+                        <div class="card mb-3 provider-option">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="provider" value="yahoo" id="yahoo" checked>
+                                    <label class="form-check-label" for="yahoo">
+                                        <strong>Yahoo Finance</strong> 
+                                        <span class="badge bg-success ms-2">Recommended</span>
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-circle text-success me-1"></i>No API key required<br>
+                                        <i class="fas fa-check-circle text-success me-1"></i>Real-time stock data<br>
+                                        <i class="fas fa-check-circle text-success me-1"></i>Reliable and fast<br>
+                                        <i class="fas fa-check-circle text-success me-1"></i>Generous rate limits
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Modeling Prep Option -->
+                        <div class="card mb-3 provider-option">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="provider" value="fmp" id="fmp">
+                                    <label class="form-check-label" for="fmp">
+                                        <strong>Financial Modeling Prep</strong>
+                                        <span class="badge bg-info ms-2">Free Tier</span>
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-circle text-success me-1"></i>No API key required<br>
+                                        <i class="fas fa-check-circle text-success me-1"></i>Real-time quotes<br>
+                                        <i class="fas fa-exclamation-triangle text-warning me-1"></i>Limited to 250 requests/day
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alpha Vantage Option -->
+                        <div class="card mb-3 provider-option">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="provider" value="alphavantage" id="alphavantage">
+                                    <label class="form-check-label" for="alphavantage">
+                                        <strong>Alpha Vantage</strong>
+                                        <span class="badge bg-warning ms-2">API Key Required</span>
+                                    </label>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-check-circle text-success me-1"></i>Official API with documentation<br>
+                                        <i class="fas fa-check-circle text-success me-1"></i>Technical indicators available<br>
+                                        <i class="fas fa-key text-primary me-1"></i>Requires free registration
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Key Input (hidden by default) -->
+                    <div class="mb-3" id="api-key-section" style="display: none;">
                         <label for="api_key" class="form-label">Alpha Vantage API Key</label>
                         <input type="text" class="form-control" id="api_key" name="api_key" 
-                               placeholder="Enter your API key here..." required>
+                               placeholder="Enter your API key here...">
                         <div class="form-text">
                             <i class="fas fa-info-circle me-1"></i>
                             Don't have an API key? 
@@ -33,8 +99,8 @@
                     </div>
                     
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Save & Continue
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Start Using Stock Radar
                         </button>
                     </div>
                 </form>
@@ -44,23 +110,65 @@
         <div class="card mt-4">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-question-circle me-2"></i>How to get your API key
+                    <i class="fas fa-lightbulb me-2"></i>Which provider should I choose?
                 </h5>
             </div>
             <div class="card-body">
-                <ol class="mb-0">
-                    <li>Visit <a href="https://www.alphavantage.co/support/#api-key" target="_blank">Alpha Vantage API</a></li>
-                    <li>Enter your email address</li>
-                    <li>Click "GET FREE API KEY"</li>
-                    <li>Copy the API key and paste it above</li>
-                </ol>
-                
-                <div class="alert alert-warning mt-3 mb-0" role="alert">
-                    <i class="fas fa-clock me-2"></i>
-                    <strong>Free Tier Limits:</strong> 25 requests per day, 5 requests per minute
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-rocket fa-2x text-success mb-2"></i>
+                            <h6 class="fw-bold">For Quick Start</h6>
+                            <p class="small text-muted">Choose <strong>Yahoo Finance</strong> - No setup required, works immediately!</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                            <h6 class="fw-bold">For Light Usage</h6>
+                            <p class="small text-muted">Choose <strong>Financial Modeling Prep</strong> - Free tier with daily limits</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-cogs fa-2x text-warning mb-2"></i>
+                            <h6 class="fw-bold">For Advanced Features</h6>
+                            <p class="small text-muted">Choose <strong>Alpha Vantage</strong> - Technical indicators & official API</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Show/hide API key section based on provider selection
+document.addEventListener('DOMContentLoaded', function() {
+    const providerRadios = document.querySelectorAll('input[name="provider"]');
+    const apiKeySection = document.getElementById('api-key-section');
+    const apiKeyInput = document.getElementById('api_key');
+    
+    function toggleApiKeySection() {
+        const selectedProvider = document.querySelector('input[name="provider"]:checked').value;
+        if (selectedProvider === 'alphavantage') {
+            apiKeySection.style.display = 'block';
+            apiKeyInput.required = true;
+        } else {
+            apiKeySection.style.display = 'none';
+            apiKeyInput.required = false;
+            apiKeyInput.value = '';
+        }
+    }
+    
+    // Initial check
+    toggleApiKeySection();
+    
+    // Add event listeners
+    providerRadios.forEach(radio => {
+        radio.addEventListener('change', toggleApiKeySection);
+    });
+});
+</script>
+
 {% endblock %}
